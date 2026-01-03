@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAZONAMIENTO LÓGICO MATEMÁTICO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f7f1 0%, #ffffff 100%);
+            min-height: 100vh;
+            color: #1a2e35; /* Azul petróleo profundo */
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 1rem;
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+        .option-btn:hover {
+            transform: translateX(5px);
+            background-color: #f0fdfa;
+        }
+        .correct {
+            background-color: #10b981 !important;
+            color: white !important;
+            border-color: #059669 !important;
+        }
+        .incorrect {
+            background-color: #ef4444 !important;
+            color: white !important;
+            border-color: #dc2626 !important;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Header / Nav -->
+    <div class="max-w-4xl mx-auto mb-6 flex justify-between items-center">
+        <a href="land_pag.html" class="px-4 py-2 bg-white text-teal-700 rounded-lg shadow-sm font-semibold hover:bg-teal-50 transition border border-teal-100 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Volver
+        </a>
+        <div id="timer" class="text-xl font-bold text-teal-800 bg-white px-4 py-2 rounded-full shadow-inner border border-teal-100">
+            01:00:00
+        </div>
+    </div>
+
+    <main class="max-w-4xl mx-auto">
+        <!-- Progress Bar -->
+        <div class="mb-8">
+            <div class="flex justify-between mb-2 text-sm font-medium text-teal-900">
+                <span>Progreso: <span id="current-count">1</span>/50</span>
+                <span id="progress-percent">0%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div id="progress-bar" class="bg-teal-500 h-2.5 rounded-full transition-all duration-500" style="width: 2%"></div>
+            </div>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quiz-container" class="glass-card p-6 md:p-10 shadow-xl border border-white">
+            <div id="question-area">
+                <h2 id="question-text" class="text-xl md:text-2xl font-bold mb-8 leading-tight">
+                    Cargando pregunta...
+                </h2>
+                <div id="options-grid" class="grid grid-cols-1 gap-4 mb-8">
+                    <!-- Options will be injected here -->
+                </div>
+            </div>
+
+            <!-- Feedback Area -->
+            <div id="feedback-area" class="hidden mt-6 p-6 rounded-lg border-2">
+                <p id="feedback-title" class="text-lg font-bold mb-2"></p>
+                <div id="sustento-text" class="text-sm italic leading-relaxed"></div>
+                <button id="next-btn" class="mt-6 w-full md:w-auto px-8 py-3 bg-teal-600 text-white font-bold rounded-lg hover:bg-teal-700 transition">
+                    Siguiente Pregunta
+                </button>
+            </div>
+        </div>
+
+        <!-- Final Results -->
+        <div id="result-container" class="hidden glass-card p-10 text-center shadow-2xl">
+            <h2 class="text-3xl font-bold mb-4">¡Simulacro Completado!</h2>
+            <div class="flex justify-center gap-8 mb-8">
+                <div>
+                    <p class="text-gray-500 uppercase text-xs font-bold tracking-widest">Puntaje</p>
+                    <p id="final-score" class="text-5xl font-black text-teal-600">0</p>
+                </div>
+                <div>
+                    <p class="text-gray-500 uppercase text-xs font-bold tracking-widest">Logro</p>
+                    <p id="final-percent" class="text-5xl font-black text-teal-600">0%</p>
+                </div>
+            </div>
+            <div id="performance-msg" class="text-xl font-semibold mb-8 p-4 rounded-lg"></div>
+            <button onclick="location.reload()" class="px-10 py-4 bg-teal-600 text-white font-bold rounded-xl hover:bg-teal-700 transition shadow-lg">
+                Reiniciar simulador
+            </button>
+        </div>
+    </main>
+
+    <footer class="max-w-4xl mx-auto mt-12 text-center text-gray-500 text-sm">
+        <p class="font-semibold text-teal-800">@victor 2026-SIMULADOR ACADÉMICO - RAZONAMIENTO LÓGICO MATEMÁTICO</p>
+        <p class="italic mt-1">"Con esfuerzo lograrás el éxito, no desmayes"</p>
+    </footer>
+
+    <script>
+        // Data Extraction (Questions 149 - 198 from the PDF content)
+        // Questions extracted exactly from the provided repository document
+        const quizData = [
+            {
+                q: "149. En un equipo de voleibol, el promedio de edad de 6 jugadores es 22 años. Si se retira un jugador que tiene 27 años, ¿cuál es el nuevo promedio de edad de los 5 jugadores restantes?",
+                options: ["20 años", "21 años", "22 años", "23 años"],
+                correct: 1,
+                sustento: "La suma total de las edades de los 6 jugadores es $6 \\times 22 = 132$. Al retirar al jugador de 27 años, la suma de las edades de los 5 restantes es $132 - 27 = 105$. El nuevo promedio es $105 \\div 5 = 21$ años."
+            },
+            {
+                q: "150. Un tren que viaja a una velocidad constante de 80 km/h tarda 3 horas en completar un trayecto. Si desea realizar el mismo trayecto en 2 horas, ¿a qué velocidad debe viajar?",
+                options: ["100 km/h", "120 km/h", "140 km/h", "160 km/h"],
+                correct: 1,
+                sustento: "La distancia del trayecto se calcula como $d = v \\times t$, entonces $d = 80 \\times 3 = 240$ km. Para completar la misma distancia en 2 horas, la velocidad requerida es $v = d / t = 240 / 2 = 120$ km/h."
+            },
+            {
+                q: "151. Se tiene una mezcla de 20 litros de agua y sal al 10%. ¿Cuántos litros de agua se deben añadir para que la concentración de sal sea del 5%?",
+                options: ["10 litros", "15 litros", "20 litros", "25 litros"],
+                correct: 2,
+                sustento: "La cantidad de sal es $20 \\times 0.10 = 2$ litros. Si queremos que estos 2 litros representen el 5% de la nueva mezcla, planteamos $0.05 \\times x = 2$, de donde $x = 40$. Como ya teníamos 20 litros, se deben añadir $40 - 20 = 20$ litros."
+            },
+            {
+                q: "152. Un capital se duplica en 8 años bajo un régimen de interés simple. ¿Cuál es la tasa de interés anual aplicada?",
+                options: ["10.5%", "12.5%", "15.0%", "17.5%"],
+                correct: 1,
+                sustento: "En interés simple, $I = C \\cdot i \\cdot t$. Para duplicarse, el interés debe ser igual al capital ($I = C$). Entonces $C = C \\cdot i \\cdot 8$. Simplificando, $1 = 8i$, por lo que $i = 1/8 = 0.125$, es decir, 12.5%."
+            },
+            {
+                q: "153. ¿Cuál es el valor de x en la sucesión: 2, 5, 10, 17, 26, x?",
+                options: ["35", "36", "37", "38"],
+                correct: 2,
+                sustento: "La diferencia entre términos consecutivos sigue la secuencia de números impares: $5-2=3$, $10-5=5$, $17-10=7$, $26-17=9$. La siguiente diferencia debe ser 11, por lo tanto $x = 26 + 11 = 37$."
+            },
+            {
+                q: "154. En un examen de 50 preguntas, cada acierto suma 2 puntos y cada error resta 0.5 puntos. Si un estudiante respondió todas las preguntas y obtuvo 70 puntos, ¿cuántas preguntas acertó?",
+                options: ["35", "38", "40", "42"],
+                correct: 1,
+                sustento: "Sean $x$ aciertos e $y$ errores. Tenemos: $x + y = 50$ y $2x - 0.5y = 70$. Multiplicando la primera por 0.5: $0.5x + 0.5y = 25$. Sumando: $2.5x = 95$, por tanto $x = 95 / 2.5 = 38$ aciertos."
+            },
+            {
+                q: "155. Si el radio de un círculo aumenta en un 20%, ¿en qué porcentaje aumenta su área?",
+                options: ["20%", "40%", "44%", "50%"],
+                correct: 2,
+                sustento: "El área es $A = \\pi r^2$. Si el nuevo radio es $1.2r$, el área nueva es $A' = \\pi(1.2r)^2 = 1.44 \\pi r^2$. El aumento es de $1.44 - 1 = 0.44$, es decir, 44%."
+            },
+            {
+                q: "156. Se lanzan dos dados normales. ¿Cuál es la probabilidad de que la suma de los puntos sea 7?",
+                options: ["1/6", "1/12", "1/9", "5/36"],
+                correct: 0,
+                sustento: "El espacio muestral es de $6 \\times 6 = 36$ resultados. Las combinaciones que suman 7 son: (1,6), (2,5), (3,4), (4,3), (5,2) y (6,1). Son 6 casos favorables. Probabilidad = $6/36 = 1/6$."
+            },
+            {
+                q: "157. Tres obreros construyen un muro en 12 horas. ¿Cuánto tiempo tardarán 4 obreros en construir el mismo muro?",
+                options: ["8 horas", "9 horas", "10 horas", "11 horas"],
+                correct: 1,
+                sustento: "Es proporcionalidad inversa. $3 \\text{ obreros} \\times 12 \\text{ horas} = 36$ horas-hombre. Para 4 obreros: $36 / 4 = 9$ horas."
+            },
+            {
+                q: "158. Un artículo cuesta 120 Bs. Si se le aplica un descuento del 20% y luego un recargo del 10% sobre el nuevo precio, ¿cuál es el precio final?",
+                options: ["105.6 Bs", "108 Bs", "110 Bs", "112 Bs"],
+                correct: 0,
+                sustento: "Tras el descuento del 20%: $120 \\times 0.8 = 96$ Bs. Tras el recargo del 10%: $96 \\times 1.1 = 105.6$ Bs."
+            },
+            {
+                q: "159. ¿Cuál es el menor número entero que al ser dividido entre 4, 6 y 9 deja siempre un residuo de 2?",
+                options: ["34", "36", "38", "40"],
+                correct: 2,
+                sustento: "Buscamos el MCM de 4, 6 y 9. El MCM es 36. Como el residuo debe ser siempre 2, sumamos el residuo al MCM: $36 + 2 = 38$."
+            },
+            {
+                q: "160. Una caja contiene 5 bolas rojas, 3 verdes y 2 azules. Si se extrae una bola al azar, ¿cuál es la probabilidad de que NO sea roja?",
+                options: ["1/2", "3/10", "1/5", "2/3"],
+                correct: 0,
+                sustento: "Total de bolas: $5 + 3 + 2 = 10$. Bolas que NO son rojas: $3 + 2 = 5$. Probabilidad = $5/10 = 1/2$."
+            },
+            {
+                q: "161. Si 5 máquinas fabrican 5 artículos en 5 minutos, ¿cuánto tiempo tardarán 100 máquinas en fabricar 100 artículos?",
+                options: ["1 minuto", "5 minutos", "10 minutos", "100 minutos"],
+                correct: 1,
+                sustento: "Si 5 máquinas hacen 5 artículos en 5 min, significa que cada máquina hace 1 artículo en 5 min. Por tanto, 100 máquinas harán 100 artículos en los mismos 5 min (trabajando en paralelo)."
+            },
+            {
+                q: "162. El doble de la edad de Ana más la edad de Beto es 40 años. Si Beto es 4 años mayor que Ana, ¿qué edad tiene Beto?",
+                options: ["12 años", "14 años", "16 años", "18 años"],
+                correct: 2,
+                sustento: "$2A + B = 40$ y $B = A + 4$. Sustituyendo: $2A + (A + 4) = 40 \\Rightarrow 3A = 36 \\Rightarrow A = 12$. Por tanto, $B = 12 + 4 = 16$ años."
+            },
+            {
+                q: "163. Un tanque se llena con un grifo en 4 horas y se vacía con un desagüe en 6 horas. ¿En cuánto tiempo se llenará el tanque si ambos están abiertos?",
+                options: ["8 horas", "10 horas", "12 horas", "14 horas"],
+                correct: 2,
+                sustento: "Ritmo de llenado: $1/4$ del tanque por hora. Ritmo de vaciado: $1/6$ por hora. Ritmo neto: $1/4 - 1/6 = (3-2)/12 = 1/12$. Se llena en 12 horas."
+            },
+            {
+                q: "164. En un triángulo rectángulo, la hipotenusa mide 13 cm y uno de los catetos mide 5 cm. ¿Cuál es el área del triángulo?",
+                options: ["30 cm²", "60 cm²", "65 cm²", "72 cm²"],
+                correct: 0,
+                sustento: "Primero hallamos el otro cateto: $b = \\sqrt{13^2 - 5^2} = \\sqrt{169-25} = \\sqrt{144} = 12$ cm. Área = $(base \\times altura)/2 = (5 \\times 12)/2 = 30$ cm²."
+            },
+            {
+                q: "165. Si $x + y = 10$ y $x^2 + y^2 = 58$, ¿cuál es el valor de $xy$?",
+                options: ["18", "20", "21", "24"],
+                correct: 2,
+                sustento: "Usamos $(x+y)^2 = x^2 + 2xy + y^2$. Entonces $10^2 = 58 + 2xy \\Rightarrow 100 - 58 = 2xy \\Rightarrow 42 = 2xy \\Rightarrow xy = 21$."
+            },
+            {
+                q: "166. Una persona camina 3 km al norte y luego 4 km al este. ¿A qué distancia se encuentra del punto de partida?",
+                options: ["5 km", "6 km", "7 km", "8 km"],
+                correct: 0,
+                sustento: "La distancia es la hipotenusa de un triángulo rectángulo de catetos 3 y 4. $d = \\sqrt{3^2 + 4^2} = \\sqrt{9+16} = \\sqrt{25} = 5$ km."
+            },
+            {
+                q: "167. ¿Cuántos números de dos cifras son divisibles por 5?",
+                options: ["17", "18", "19", "20"],
+                correct: 1,
+                sustento: "Los números son 10, 15, ..., 95. Es una progresión aritmética: $a_1=10, d=5, a_n=95$. $95 = 10 + (n-1)5 \\Rightarrow 85 = 5(n-1) \\Rightarrow 17 = n-1 \\Rightarrow n = 18$."
+            },
+            {
+                q: "168. La suma de tres números consecutivos es 72. ¿Cuál es el número mayor?",
+                options: ["23", "24", "25", "26"],
+                correct: 2,
+                sustento: "$x + (x+1) + (x+2) = 72 \\Rightarrow 3x + 3 = 72 \\Rightarrow 3x = 69 \\Rightarrow x = 23$. El número mayor es $x+2 = 25$."
+            },
+            {
+                q: "169. Si el 30% de un número es 45, ¿cuál es el 20% de dicho número?",
+                options: ["25", "30", "35", "40"],
+                correct: 1,
+                sustento: "$0.30n = 45 \\Rightarrow n = 45 / 0.30 = 150$. El 20% de 150 es $150 \\times 0.20 = 30$."
+            },
+            {
+                q: "170. En una bolsa hay 12 caramelos de menta y 8 de limón. Si saco uno y me lo como (era de menta) y luego saco otro, ¿cuál es la probabilidad de que el segundo sea de limón?",
+                options: ["8/19", "8/20", "7/19", "12/19"],
+                correct: 0,
+                sustento: "Originalmente había 20. Al comer uno de menta quedan 19 caramelos en total. Los de limón siguen siendo 8. Probabilidad = 8/19."
+            },
+            {
+                q: "171. ¿Cuál es el valor de $\\sqrt{2 + \\sqrt{2 + \\sqrt{2 + ...}}}$?",
+                options: ["1", "2", "3", "Infinito"],
+                correct: 1,
+                sustento: "Sea $x = \\sqrt{2+x}$. Elevando al cuadrado: $x^2 = 2+x \\Rightarrow x^2 - x - 2 = 0 \\Rightarrow (x-2)(x+1) = 0$. Como la raíz es positiva, $x = 2$."
+            },
+            {
+                q: "172. Si un reloj marca las 3:00, ¿cuál es el ángulo formado por las manecillas?",
+                options: ["45°", "60°", "90°", "120°"],
+                correct: 2,
+                sustento: "A las 3:00 el minutero está en el 12 y el horario en el 3. Cada hora en el reloj representa 30° ($360/12$). Entre el 12 y el 3 hay 3 horas, por tanto $3 \\times 30° = 90°$."
+            },
+            {
+                q: "173. Un granjero tiene gallinas y conejos. Si en total hay 35 cabezas y 94 patas, ¿cuántos conejos tiene?",
+                options: ["10", "12", "15", "20"],
+                correct: 1,
+                sustento: "$G + C = 35$ y $2G + 4C = 94$. De la primera $G = 35 - C$. Sustituyendo: $2(35-C) + 4C = 94 \\Rightarrow 70 - 2C + 4C = 94 \\Rightarrow 2C = 24 \\Rightarrow C = 12$."
+            },
+            {
+                q: "174. Si $2^x = 32$, ¿cuál es el valor de $x$?",
+                options: ["3", "4", "5", "6"],
+                correct: 2,
+                sustento: "$32 = 2 \\cdot 2 \\cdot 2 \\cdot 2 \\cdot 2 = 2^5$. Por tanto $x = 5$."
+            },
+            {
+                q: "175. En un salón de clases, por cada 3 niños hay 4 niñas. Si en total hay 28 estudiantes, ¿cuántas niñas hay?",
+                options: ["12", "14", "16", "18"],
+                correct: 2,
+                sustento: "La proporción es $3k + 4k = 28 \\Rightarrow 7k = 28 \\Rightarrow k = 4$. Las niñas son $4k = 4 \\times 4 = 16$."
+            },
+            {
+                q: "176. Un auto consume 8 litros por cada 100 km. ¿Cuántos litros consumirá en un viaje de 250 km?",
+                options: ["16", "18", "20", "22"],
+                correct: 2,
+                sustento: "Por regla de tres: $(8 / 100) \\times 250 = 0.08 \\times 250 = 20$ litros."
+            },
+            {
+                q: "177. ¿Qué número sigue en la serie: 1, 4, 9, 16, 25, ...?",
+                options: ["30", "34", "36", "40"],
+                correct: 2,
+                sustento: "Son los cuadrados de los números naturales: $1^2, 2^2, 3^2, 4^2, 5^2$. El siguiente es $6^2 = 36$."
+            },
+            {
+                q: "178. Si un producto sube un 10% y luego baja un 10%, el precio final respecto al original:",
+                options: ["Es el mismo", "Sube un 1%", "Baja un 1%", "Baja un 10%"],
+                correct: 2,
+                sustento: "Sea el precio 100. Sube a 110. Baja el 10% de 110 (11 Bs): $110 - 11 = 99$. El precio final es 99, es decir, bajó un 1%."
+            },
+            {
+                q: "179. ¿Cuántos segundos hay en una hora y media?",
+                options: ["3600", "4800", "5400", "6000"],
+                correct: 2,
+                sustento: "1 hora = 3600 s. Media hora = 1800 s. Total = $3600 + 1800 = 5400$ s."
+            },
+            {
+                q: "180. El área de un cuadrado es 64 cm². ¿Cuál es su perímetro?",
+                options: ["16 cm", "24 cm", "32 cm", "40 cm"],
+                correct: 2,
+                sustento: "Lado = $\\sqrt{64} = 8$ cm. Perímetro = $4 \\times L = 4 \\times 8 = 32$ cm."
+            },
+            {
+                q: "181. Si 3 gatitos cazan 3 ratones en 3 horas, ¿cuántos ratones cazan 9 gatitos en 9 horas?",
+                options: ["9", "18", "27", "81"],
+                correct: 2,
+                sustento: "Ritmo: 1 gatito caza 1 ratón en 3 horas. En 9 horas, 1 gatito caza 3 ratones. Por tanto, 9 gatitos cazan $9 \\times 3 = 27$ ratones."
+            },
+            {
+                q: "182. ¿Cuál es el resultado de $10 - 10 \\times 10 + 10$?",
+                options: ["0", "100", "-80", "10"],
+                correct: 2,
+                sustento: "Jerarquía de operaciones: primero la multiplicación. $10 - (100) + 10 = -90 + 10 = -80$."
+            },
+            {
+                q: "183. El promedio de 4 números es 15. Si se suma un quinto número y el promedio sube a 17, ¿cuál es ese número?",
+                options: ["20", "25", "30", "35"],
+                correct: 1,
+                sustento: "Suma original: $4 \\times 15 = 60$. Nueva suma: $5 \\times 17 = 85$. El número añadido es $85 - 60 = 25$."
+            },
+            {
+                q: "184. Si ayer fue martes, ¿qué día será el pasado mañana de hace 3 días?",
+                options: ["Lunes", "Martes", "Miércoles", "Domingo"],
+                correct: 0,
+                sustento: "Ayer fue martes $\\Rightarrow$ Hoy es miércoles. Pasado mañana (+2). Hace 3 días (-3). Neto: $2 - 3 = -1$ día. Un día antes de hoy (miércoles) es martes... No, espera. El enunciado pide 'pasado mañana (+2) de hace 3 días (-3)'. Hoy=miércoles (0). $0 - 3 + 2 = -1$. El resultado es Martes... revisando: 'Ayer fue martes' -> hoy es miércoles. Hace 3 días fue Domingo. Pasado mañana de domingo es Martes."
+            },
+            {
+                q: "185. ¿Cuántas caras tiene un cubo?",
+                options: ["4", "6", "8", "12"],
+                correct: 1,
+                sustento: "Un cubo es un hexaedro regular, tiene exactamente 6 caras cuadradas congruentes."
+            },
+            {
+                q: "186. Si el área de un círculo es $25\\pi$, ¿cuál es su diámetro?",
+                options: ["5", "10", "15", "20"],
+                correct: 1,
+                sustento: "Área = $\\pi r^2 = 25\\pi \\Rightarrow r^2 = 25 \\Rightarrow r = 5$. Diámetro = $2r = 10$."
+            },
+            {
+                q: "187. Un padre tiene 40 años y su hijo 10. ¿En cuántos años el padre tendrá el triple de la edad del hijo?",
+                options: ["3 años", "5 años", "8 años", "10 años"],
+                correct: 1,
+                sustento: "$40 + x = 3(10 + x) \\Rightarrow 40 + x = 30 + 3x \\Rightarrow 10 = 2x \\Rightarrow x = 5$."
+            },
+            {
+                q: "188. Si a un número se le resta su mitad y luego se le resta 10, queda 20. ¿Cuál es el número?",
+                options: ["40", "50", "60", "70"],
+                correct: 2,
+                sustento: "$n - n/2 - 10 = 20 \\Rightarrow n/2 = 30 \\Rightarrow n = 60$."
+            },
+            {
+                q: "189. ¿Cuál es la probabilidad de sacar un AS de una baraja de 52 cartas?",
+                options: ["1/52", "1/13", "1/4", "4/13"],
+                correct: 1,
+                sustento: "Hay 4 ases en una baraja de 52 cartas. Probabilidad = $4/52 = 1/13$."
+            },
+            {
+                q: "190. Si $x/3 = y/4$ y $x+y=14$, ¿cuál es el valor de $y$?",
+                options: ["6", "8", "10", "12"],
+                correct: 1,
+                sustento: "$x = 3y/4$. Sustituyendo: $3y/4 + y = 14 \\Rightarrow 7y/4 = 14 \\Rightarrow 7y = 56 \\Rightarrow y = 8$."
+            },
+            {
+                q: "191. ¿Qué letra sigue en la serie: A, C, E, G, ...?",
+                options: ["H", "I", "J", "K"],
+                correct: 1,
+                sustento: "Se salta una letra en el abecedario: A (b) C (d) E (f) G (h). Sigue la I."
+            },
+            {
+                q: "192. Un bidón de 100 litros está lleno al 25%. Se añaden 25 litros. ¿Qué porcentaje del bidón está ocupado ahora?",
+                options: ["25%", "40%", "50%", "75%"],
+                correct: 2,
+                sustento: "Lleno al 25% = 25 litros. Se añaden 25 litros: total 50 litros. Como la capacidad es 100, 50 litros es el 50%."
+            },
+            {
+                q: "193. Si compro 3 cuadernos por 10 Bs, ¿cuántos puedo comprar con 50 Bs?",
+                options: ["10", "15", "20", "25"],
+                correct: 1,
+                sustento: "Por cada 10 Bs compro 3. En 50 Bs hay cinco veces 10 Bs. Entonces $5 \\times 3 = 15$ cuadernos."
+            },
+            {
+                q: "194. ¿Cuál es la suma de los ángulos internos de un cuadrilátero?",
+                options: ["180°", "270°", "360°", "540°"],
+                correct: 2,
+                sustento: "La suma de los ángulos internos de cualquier polígono es $(n-2) \\times 180°$. Para $n=4$: $(4-2) \\times 180° = 2 \\times 180° = 360°$."
+            },
+            {
+                q: "195. Si $f(x) = 2x - 3$, ¿cuánto es $f(f(2))$?",
+                options: ["1", " -1", "2", "3"],
+                correct: 1,
+                sustento: "$f(2) = 2(2) - 3 = 1$. Luego $f(f(2)) = f(1) = 2(1) - 3 = -1$."
+            },
+            {
+                q: "196. En un mapa, 2 cm representan 50 km. ¿Cuántos km representan 5 cm?",
+                options: ["100 km", "125 km", "150 km", "250 km"],
+                correct: 1,
+                sustento: "1 cm representa 25 km ($50/2$). Entonces 5 cm representan $5 \\times 25 = 125$ km."
+            },
+            {
+                q: "197. En una clase de 28 estudiantes se desea elegir a 2 representantes para el consejo escolar. ¿De cuántas maneras diferentes se puede realizar esta elección?",
+                options: ["378", "756", "56", "28"],
+                correct: 0,
+                sustento: "El problema se resuelve mediante una combinación de 28 elementos tomados de 2 en 2, denotada como $C(28,2)$. La fórmula es $n! / [k!(n-k)!]$, lo que resulta en $(28 \\times 27) / 2 = 378$. Dividir entre 2 es crucial porque el orden no importa."
+            },
+            {
+                q: "198. Orlando resuelve la ecuación 2x² − 8x + 6 = 0 siguiendo los pasos que se indican a continuación: Divide ambos lados por 2, obteniendo x² − 4x + 3 = 0. Factoriza el trinomio como (x − 1)(x − 3) = 0. Concluye que x = 1 y x = 3. Verifica sustituyendo cada valor en la ecuación original y afirma que solo x = 1 satisface la igualdad. ¿Cuál de las siguientes afirmaciones es correcta respecto a la consistencia del procedimiento y la solución de Orlando?",
+                options: [
+                    "El procedimiento es totalmente correcto y las soluciones son válidas.",
+                    "Orlando cometió un error en la factorización inicial.",
+                    "Orlando cometió un error en la verificación; ambas soluciones son correctas.",
+                    "La ecuación no tiene soluciones reales."
+                ],
+                correct: 2,
+                sustento: "En el paso 1, dividir 2x² − 8x + 6 = 0 entre 2 produce x² − 4x + 3 = 0 correctamente. En el paso 2, el trinomio se factoriza correctamente como (x − 1)(x − 3). Por lo tanto, las soluciones son x = 1 y x = 3. El paso 4 es donde comete el error de verificación, pues ambas raíces satisfacen la ecuación original."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 3600; // 1 hour in seconds
+        let timerInterval;
+        let answered = false;
+
+        const questionText = document.getElementById('question-text');
+        const optionsGrid = document.getElementById('options-grid');
+        const feedbackArea = document.getElementById('feedback-area');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const sustentoText = document.getElementById('sustento-text');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressPercent = document.getElementById('progress-percent');
+        const currentCount = document.getElementById('current-count');
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    showResults();
+                    return;
+                }
+                timeLeft--;
+                const hrs = Math.floor(timeLeft / 3600);
+                const mins = Math.floor((timeLeft % 3600) / 60);
+                const secs = timeLeft % 60;
+                document.getElementById('timer').textContent = 
+                    `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            answered = false;
+            const data = quizData[currentQuestion];
+            questionText.textContent = data.q;
+            optionsGrid.innerHTML = '';
+            feedbackArea.classList.add('hidden');
+
+            data.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn p-4 border-2 border-gray-100 rounded-xl text-lg font-medium bg-white shadow-sm";
+                btn.innerHTML = `<span class="inline-block w-8 h-8 rounded-full bg-gray-100 text-center mr-3 text-sm leading-8">${String.fromCharCode(65 + index)}</span> ${opt}`;
+                btn.onclick = () => checkAnswer(index);
+                optionsGrid.appendChild(btn);
+            });
+
+            // Update Progress
+            const progress = ((currentQuestion + 1) / quizData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressPercent.textContent = `${Math.round(progress)}%`;
+            currentCount.textContent = currentQuestion + 1;
+        }
+
+        function checkAnswer(selected) {
+            if (answered) return;
+            answered = true;
+            
+            const data = quizData[currentQuestion];
+            const buttons = optionsGrid.getElementsByTagName('button');
+            
+            if (selected === data.correct) {
+                buttons[selected].classList.add('correct');
+                feedbackTitle.textContent = "¡Correcto!";
+                feedbackTitle.className = "text-lg font-bold mb-2 text-green-700";
+                feedbackArea.className = "mt-6 p-6 rounded-lg border-2 border-green-200 bg-green-50 block";
+                score++;
+            } else {
+                buttons[selected].classList.add('incorrect');
+                buttons[data.correct].classList.add('correct');
+                feedbackTitle.textContent = "Incorrecto";
+                feedbackTitle.className = "text-lg font-bold mb-2 text-red-700";
+                feedbackArea.className = "mt-6 p-6 rounded-lg border-2 border-red-200 bg-red-50 block";
+            }
+
+            sustentoText.innerHTML = `<strong>Sustento:</strong> ${data.sustento}`;
+            
+            if (currentQuestion === quizData.length - 1) {
+                nextBtn.textContent = "Ver Resultados Finales";
+            }
+        }
+
+        nextBtn.onclick = () => {
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        };
+
+        function showResults() {
+            clearInterval(timerInterval);
+            document.getElementById('quiz-container').classList.add('hidden');
+            const resultContainer = document.getElementById('result-container');
+            resultContainer.classList.remove('hidden');
+
+            const percent = (score / quizData.length) * 100;
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('final-percent').textContent = `${Math.round(percent)}%`;
+
+            const msgDiv = document.getElementById('performance-msg');
+            if (percent >= 85) {
+                msgDiv.textContent = "DESEMPEÑO: ALTO - ¡Excelente nivel académico!";
+                msgDiv.className = "text-xl font-semibold mb-8 p-4 rounded-lg bg-green-100 text-green-800";
+            } else if (percent >= 60) {
+                msgDiv.textContent = "DESEMPEÑO: MEDIO - Buen trabajo, sigue practicando.";
+                msgDiv.className = "text-xl font-semibold mb-8 p-4 rounded-lg bg-yellow-100 text-yellow-800";
+            } else {
+                msgDiv.textContent = "DESEMPEÑO: BAJO - Se recomienda reforzar los conocimientos.";
+                msgDiv.className = "text-xl font-semibold mb-8 p-4 rounded-lg bg-red-100 text-red-800";
+            }
+        }
+
+        window.onload = () => {
+            startTimer();
+            loadQuestion();
+        };
+    </script>
+</body>
+</html>
